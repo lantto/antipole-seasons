@@ -47,18 +47,18 @@ var Village = (function() {
     }
 
     Village.prototype.update = function() {
-        var solstice = parseInt(nature.$data.solstice),
-            weather = parseInt(nature.$data.weather),
-            season = parseInt(nature.$data.season),
-            energyAlter = (weather + season - solstice) * this.modifier,
-            foodAlter = (solstice + season - weather) * this.modifier,
-            waterAlter = (weather + solstice - season) * this.modifier;
-            
+        var solstice = parseInt(nature.$data.solstice) * this.modifier,
+            weather = parseInt(nature.$data.weather) * this.modifier,
+            season = parseInt(nature.$data.season) * this.modifier,
+            energyAlter = ((season > 0 ? season : 0) + (-(solstice) > 0 ? -(solstice) : 0)),
+            foodAlter = ((solstice > 0 ? solstice : 0) + (-(weather) > 0 ? -(weather) : 0)),
+            waterAlter = ((weather > 0 ? weather : 0) + (-(season) > 0 ? -(season) : 0));
+        
         /****************
          *   SOL WEA SEA
-         * E  -   +   +
-         * F  +   -   +
-         * W  +   +   -
+         * E  -       + 
+         * F  +   -   
+         * W      +   -
          ****************/
             
         this.energy += energyAlter - config.degeneration;
@@ -67,9 +67,9 @@ var Village = (function() {
         
         if (this.energy <= 0
             || this.food <= 0
-            || this.water <=  0
+            || this.water <= 0
         ) {
-            alert(this.id + 'ern village died');
+            console.log(this.id + 'ern village died');
         }
          
         $('#' + this.id + ' .energy').html(this.energy);
