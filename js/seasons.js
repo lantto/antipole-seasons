@@ -26,7 +26,8 @@ var Village = (function() {
         this.id = id;
         
         this.modifier = modifier;
-    
+        
+        // TODO: Use a pool instead so the total is always the same
         this.energy = utils.random(0, 10000);
         this.food = utils.random(0, 10000);
         this.water = utils.random(0, 10000);
@@ -40,9 +41,16 @@ var Village = (function() {
             foodAlter = (solstice + season - weather) * this.modifier,
             waterAlter = (weather + solstice - season) * this.modifier;
             
-        this.energy += energyAlter;
-        this.food += foodAlter;
-        this.water += waterAlter;
+        this.energy += energyAlter - 100;
+        this.food += foodAlter - 100;
+        this.water += waterAlter - 100;
+        
+        if (this.energy <= 0
+            || this.food <= 0
+            || this.water <=  0
+        ) {
+            alert(this.id + 'ern village died');
+        }
         
         /****************
          *   SOL WEA SEA

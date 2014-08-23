@@ -8,21 +8,38 @@
 <body>
     <div class="container">
         <div id="west">
-            <div>Energy: <span class="energy">1000</span></div>
-            <div>Food: <span class="food">1000</span></div>
-            <div>Water: <span class="water">1000</span></div>
+            <div>Energy: <span class="energy">10000</span></div>
+            <div>Food: <span class="food">10000</span></div>
+            <div>Water: <span class="water">10000</span></div>
+            <hr>
+            <div>Energy: <span class="energy-alter"></span></div>
+            <div>Food: <span class="food-alter"></span></div>
+            <div>Water: <span class="water-alter"></span></div>
         </div>
         
         <div id="nature">
-            <input type="range" id="solstice" min="-100" max="100" v-model="solstice">
-            <input type="range" id="weather" min="-100" max="100" v-model="weather">
-            <input type="range" id="season" min="-100" max="100" v-model="season">
+            <div>
+                <p>+ Food, Water - Energy</p>
+                <input type="range" id="solstice" min="-100" max="100" v-model="solstice">
+            </div>
+            <div>
+                <p>+ Energy, Water - Food</p>
+                <input type="range" id="weather" min="-100" max="100" v-model="weather">
+            </div>
+            <div>
+                <p>+ Food, Energy - Water</p>
+                <input type="range" id="season" min="-100" max="100" v-model="season">
+            </div>
         </div>
         
         <div id="east">
-            <div>Energy: <span class="energy">1000</span></div>
-            <div>Food: <span class="food">1000</span></div>
-            <div>Water: <span class="water">1000</span></div>
+            <div>Energy: <span class="energy">10000</span></div>
+            <div>Food: <span class="food">10000</span></div>
+            <div>Water: <span class="water">10000</span></div>
+            <hr>
+            <div>Energy: <span class="energy-alter"></span></div>
+            <div>Food: <span class="food-alter"></span></div>
+            <div>Water: <span class="water-alter"></span></div>
         </div>
     </div>
 
