@@ -13,7 +13,7 @@ var config = {
     pool: [7500, 7500, 5000, 5000, 2500, 2500],
     baseValue: 0,
     maxValue: 10000,
-    degeneration: 0
+    degeneration: 60
 };
 
 var nature = new Vue({
@@ -25,30 +25,55 @@ var nature = new Vue({
     }
 });
 
+var resourcesForSecondVillage = {};
+
 var Village = (function() {
-    function Village(id, modifier) {
+    function Village(id, modifier, first) {
         this.id = id;
         
         this.modifier = modifier;
         
-        this.energy
-        = this.food
-        = this.water
-        = this.happiness
-        = this.chill
-        = this.heat 
-        = config.baseValue;
-        
-        var resources = ['energy', 'food', 'water', 'happiness', 'chill', 'heat'];
-        
-        var pool = config.pool.slice(0);
-        
-        while (resources.length > 0) {
-            var resourceIndex = utils.random(0, resources.length - 1);
-            var poolIndex = utils.random(0, pool.length - 1);
-            this[resources[resourceIndex]] += pool[poolIndex];
-            resources.splice(resourceIndex, 1);
-            pool.splice(poolIndex, 1);
+        if (first) {
+            this.energy
+            = this.food
+            = this.water
+            = this.happiness
+            = this.chill
+            = this.heat 
+            = config.baseValue;
+            
+            var resources = ['energy', 'food', 'water', 'happiness', 'chill', 'heat'];
+            
+            var pool = config.pool.slice(0);
+            
+            while (resources.length > 0) {
+                var resourceIndex = utils.random(0, resources.length - 1);
+                var poolIndex = utils.random(0, pool.length - 1);
+                this[resources[resourceIndex]] += pool[poolIndex];
+                
+                switch (config.pool.indexOf(pool[poolIndex])) {
+                    case 0:
+                    case 1:
+                        resourcesForSecondVillage[resources[resourceIndex]] = config.pool[4];
+                        break;
+                    case 2:
+                    case 3:
+                        resourcesForSecondVillage[resources[resourceIndex]] = config.pool[2];
+                        break;
+                    case 4:
+                    case 5:
+                        resourcesForSecondVillage[resources[resourceIndex]] = config.pool[0];
+                        break;
+                }
+                
+                resources.splice(resourceIndex, 1);
+                pool.splice(poolIndex, 1);
+            }
+        } else {
+            console.log(resourcesForSecondVillage);
+            for (var resource in resourcesForSecondVillage) {
+                this[resource] = config.baseValue + resourcesForSecondVillage[resource];
+            }
         }
     }
 
@@ -119,7 +144,7 @@ var Village = (function() {
     return Village;
 })();
 
-var west = new Village('west', -1);
+var west = new Village('west', -1, true);
 var east = new Village('east', 1);
 
 var logicLoop = function() {
