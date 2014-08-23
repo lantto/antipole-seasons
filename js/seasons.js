@@ -1,4 +1,4 @@
-(function($, window, undefined) {
+(function($, Vue, window, undefined) {
 
 'use strict';
 
@@ -6,7 +6,16 @@ var config = {
     logicTimer: 2000
 };
 
-Village = (function() {
+var nature = new Vue({
+    el: '#nature',
+    data: {
+        solstice: 0,
+        weather: -100,
+        season: 50
+    }
+});
+
+var Village = (function() {
     function Village(id) {
         this.id = id;
     
@@ -15,8 +24,8 @@ Village = (function() {
         this.water = 10;
     }
 
-    Village.prototype.update = function(meters) {
-        return;
+    Village.prototype.update = function() {
+        
     };
 
     return Village;
@@ -34,4 +43,4 @@ var logicLoop = function() {
 
 setTimeout(logicLoop, config.logicTimer);
 
-})(jQuery, window);
+})(jQuery, Vue, window);

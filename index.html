@@ -6,8 +6,14 @@
 </head>
 <body>
     <div>Energy: <span id="energy">10</span></div>
-    <div>Food: <span id="hunger">10</span></div>
-    <div>Water: <span id="food">10</span></div>
+    <div>Food: <span id="food">10</span></div>
+    <div>Water: <span id="water">10</span></div>
+    
+    <div id="nature">
+        <input type="range" id="solstice" min="-100" max="100" value="{{solstice}}">
+        <input type="range" id="weather" min="-100" max="100" value="{{weather}}">
+        <input type="range" id="season" min="-100" max="100" value="{{season}}">
+    </div>
 
     <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/vue/0.10.6/vue.min.js"></script>
