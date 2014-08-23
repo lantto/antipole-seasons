@@ -29,8 +29,8 @@ var Village = (function() {
     }
 
     Village.prototype.update = function() {
-        var solstice = parseInt(nature.$data.solstice);
-            weather = parseInt(nature.$data.weather);
+        var solstice = parseInt(nature.$data.solstice),
+            weather = parseInt(nature.$data.weather),
             season = parseInt(nature.$data.season);
 
         this.energy += (weather + season - solstice) * this.modifier;
