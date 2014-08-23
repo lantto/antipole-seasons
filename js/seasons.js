@@ -2,6 +2,12 @@
 
 'use strict';
 
+var utils = {
+    random: function(min,max) {
+        return Math.floor(Math.random()*(max-min+1)+min);
+    }
+};
+
 var config = {
     logicTimer: 2000
 };
@@ -21,21 +27,22 @@ var Village = (function() {
         
         this.modifier = modifier;
     
-        this.energy = 1000;
-        this.food = 1000;
-        this.water = 1000;
-        
-
+        this.energy = utils.random(0, 10000);
+        this.food = utils.random(0, 10000);
+        this.water = utils.random(0, 10000);
     }
 
     Village.prototype.update = function() {
         var solstice = parseInt(nature.$data.solstice),
             weather = parseInt(nature.$data.weather),
-            season = parseInt(nature.$data.season);
-
-        this.energy += (weather + season - solstice) * this.modifier;
-        this.food += (solstice + season - weather) * this.modifier;
-        this.water += (weather + solstice - season) * this.modifier;
+            season = parseInt(nature.$data.season),
+            energyAlter = (weather + season - solstice) * this.modifier,
+            foodAlter = (solstice + season - weather) * this.modifier,
+            waterAlter = (weather + solstice - season) * this.modifier;
+            
+        this.energy += energyAlter;
+        this.food += foodAlter;
+        this.water += waterAlter;
         
         /****************
          *   SOL WEA SEA
@@ -47,6 +54,10 @@ var Village = (function() {
         $('#' + this.id + ' .energy').html(this.energy);
         $('#' + this.id + ' .food').html(this.food);
         $('#' + this.id + ' .water').html(this.water);
+        
+        $('#' + this.id + ' .energy-alter').html(energyAlter);
+        $('#' + this.id + ' .food-alter').html(foodAlter);
+        $('#' + this.id + ' .water-alter').html(waterAlter);
     };
 
     return Village;
