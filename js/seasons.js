@@ -10,7 +10,8 @@ var utils = {
 
 var config = {
     logicTimer: 2000,
-    pool: 10000
+    pool: 10000,
+    baseValue: 2500
 };
 
 var nature = new Vue({
@@ -28,11 +29,9 @@ var Village = (function() {
         
         this.modifier = modifier;
         
-        // TODO: Use a pool instead so the total is always the same
-        
-        this.energy = 2500;
-        this.food = 2500;
-        this.water = 2500;
+        this.energy = config.baseValue;
+        this.food = config.baseValue;
+        this.water = config.baseValue;
         
         var resources = ['energy', 'food', 'water'];
         var pool = config.pool;
