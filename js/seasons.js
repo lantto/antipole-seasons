@@ -12,7 +12,7 @@ var config = {
     logicTimer: 2000,
     pool: 10000,
     baseValue: 2500,
-    degeneration: 100
+    degeneration: 200
 };
 
 var nature = new Vue({
@@ -50,9 +50,9 @@ var Village = (function() {
         var solstice = parseInt(nature.$data.solstice) * this.modifier,
             weather = parseInt(nature.$data.weather) * this.modifier,
             season = parseInt(nature.$data.season) * this.modifier,
-            energyAlter = ((season > 0 ? season : 0) + (-(solstice) > 0 ? -(solstice) : 0)),
-            foodAlter = ((solstice > 0 ? solstice : 0) + (-(weather) > 0 ? -(weather) : 0)),
-            waterAlter = ((weather > 0 ? weather : 0) + (-(season) > 0 ? -(season) : 0));
+            energyAlter = (50 - solstice / 2) + (50 + season / 2),
+            foodAlter = (50 - weather / 2) + (50 + solstice / 2),
+            waterAlter = (50 - season / 2) + (50 + weather / 2);
         
         /****************
          *   SOL WEA SEA
