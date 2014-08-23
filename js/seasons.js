@@ -33,8 +33,11 @@ var Village = (function() {
         this.energy = config.baseValue;
         this.food = config.baseValue;
         this.water = config.baseValue;
+        this.happiness = config.baseValue;
+        this.chill = config.baseValue;
+        this.heat = config.baseValue;
         
-        var resources = ['energy', 'food', 'water'];
+        var resources = ['energy', 'food', 'water', 'happiness', 'chill', 'heat'];
         var pool = config.pool;
         
         while (resources.length > 0) {
@@ -49,21 +52,25 @@ var Village = (function() {
     Village.prototype.update = function() {
         var solstice = parseInt(nature.$data.solstice) * this.modifier,
             weather = parseInt(nature.$data.weather) * this.modifier,
-            season = parseInt(nature.$data.season) * this.modifier,
-            energyAlter = (50 - solstice / 2) + (50 + season / 2),
-            foodAlter = (50 - weather / 2) + (50 + solstice / 2),
-            waterAlter = (50 - season / 2) + (50 + weather / 2);
+            season = parseInt(nature.$data.season) * this.modifier;
         
         /****************
          *   SOL WEA SEA
-         * E  -       + 
-         * F  +   -   
-         * W      +   -
+         * E  -         
+         * F  +       
+         * W      +   
+         * :)     -
+         * C          +
+         * H          -
          ****************/
             
-        this.energy += energyAlter - config.degeneration;
-        this.food += foodAlter - config.degeneration;
-        this.water += waterAlter - config.degeneration;
+        this.energy += -(solstice) - config.degeneration;
+        this.food += solstice - config.degeneration;
+        this.water += weather - config.degeneration;
+        this.happiness += -(weather) - config.degeneration;
+        this.chill += season - config.degeneration;
+        this.heat += -(season) - config.degenration;
+        
         
         if (this.energy <= 0
             || this.food <= 0
