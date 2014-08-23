@@ -11,7 +11,8 @@ var utils = {
 var config = {
     logicTimer: 2000,
     pool: 10000,
-    baseValue: 2500
+    baseValue: 2500,
+    degeneration: 100
 };
 
 var nature = new Vue({
@@ -53,9 +54,9 @@ var Village = (function() {
             foodAlter = (solstice + season - weather) * this.modifier,
             waterAlter = (weather + solstice - season) * this.modifier;
             
-        this.energy += energyAlter - 100;
-        this.food += foodAlter - 100;
-        this.water += waterAlter - 100;
+        this.energy += energyAlter - config.degeneration;
+        this.food += foodAlter - config.degeneration;
+        this.water += waterAlter - config.degeneration;
         
         if (this.energy <= 0
             || this.food <= 0
