@@ -9,7 +9,8 @@ var utils = {
 };
 
 var config = {
-    logicTimer: 2000
+    logicTimer: 2000,
+    pool: 10000
 };
 
 var nature = new Vue({
@@ -28,9 +29,21 @@ var Village = (function() {
         this.modifier = modifier;
         
         // TODO: Use a pool instead so the total is always the same
-        this.energy = utils.random(0, 10000);
-        this.food = utils.random(0, 10000);
-        this.water = utils.random(0, 10000);
+        
+        this.energy = 2500;
+        this.food = 2500;
+        this.water = 2500;
+        
+        var resources = ['energy', 'food', 'water'];
+        var pool = config.pool;
+        
+        while (resources.length > 0) {
+            var index = utils.random(0, resources.length - 1);
+            var add = utils.random(0, pool);
+            this[resources[index]] += add;
+            pool -= add;
+            resources.splice(index, 1);
+        }
     }
 
     Village.prototype.update = function() {
