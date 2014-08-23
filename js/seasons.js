@@ -12,7 +12,7 @@ var config = {
     logicTimer: 2000,
     pool: 10000,
     baseValue: 2500,
-    degeneration: 200
+    degeneration: 120
 };
 
 var nature = new Vue({
