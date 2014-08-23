@@ -13,15 +13,23 @@ var config = {
     pool: [7500, 7500, 5000, 5000, 2500, 2500],
     baseValue: 0,
     maxValue: 10000,
-    degeneration: 60
+    degeneration: 60,
+    opposites: {
+        energy: 'food',
+        food: 'energy',
+        water: 'happiness',
+        happiness: 'water',
+        chill: 'heat',
+        heat: 'chill'
+    }
 };
 
 var nature = new Vue({
     el: '#nature',
     data: {
-        solstice: 0,
-        weather: 0,
-        season: 0
+        solstice: utils.random(-100, 100),
+        weather: utils.random(-100, 100),
+        season: utils.random(-100, 100)
     }
 });
 
@@ -49,25 +57,40 @@ var Village = (function() {
             while (resources.length > 0) {
                 var resourceIndex = utils.random(0, resources.length - 1);
                 var poolIndex = utils.random(0, pool.length - 1);
-                this[resources[resourceIndex]] += pool[poolIndex];
+                var resource = resources[resourceIndex];
+                this[resource] += pool[poolIndex];
+                resources.splice(resourceIndex, 1);
+                resources.splice(resources.indexOf(config.opposites[resource]), 1);
+                resourcesForSecondVillage[config.opposites[resource]] = pool[poolIndex];
+                
+                var oppositePool;
                 
                 switch (config.pool.indexOf(pool[poolIndex])) {
                     case 0:
                     case 1:
-                        resourcesForSecondVillage[resources[resourceIndex]] = config.pool[4];
+                        resourcesForSecondVillage[resource]
+                        = this[config.opposites[resource]]
+                        = oppositePool
+                        = config.pool[4];
                         break;
                     case 2:
                     case 3:
-                        resourcesForSecondVillage[resources[resourceIndex]] = config.pool[2];
+                        resourcesForSecondVillage[resource]
+                        = this[config.opposites[resource]]
+                        = oppositePool
+                        = config.pool[2];
                         break;
                     case 4:
                     case 5:
-                        resourcesForSecondVillage[resources[resourceIndex]] = config.pool[0];
+                        resourcesForSecondVillage[resource]
+                        = this[config.opposites[resource]]
+                        = oppositePool
+                        = config.pool[0];
                         break;
                 }
                 
-                resources.splice(resourceIndex, 1);
                 pool.splice(poolIndex, 1);
+                pool.splice(pool.indexOf(oppositePool), 1);
             }
         } else {
             console.log(resourcesForSecondVillage);
