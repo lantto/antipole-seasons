@@ -9,30 +9,41 @@ var config = {
 var nature = new Vue({
     el: '#nature',
     data: {
-        solstice: 0,
+        solstice: 100,
         weather: -100,
-        season: 50
+        season: -100
     }
 });
 
 var Village = (function() {
-    function Village(id) {
+    function Village(id, modifier) {
         this.id = id;
+        
+        this.modifier = modifier;
     
-        this.energy = 10;
-        this.food = 10;
-        this.water = 10;
+        this.energy = 1000;
+        this.food = 1000;
+        this.water = 1000;
     }
 
     Village.prototype.update = function() {
+        this.energy += (nature.$data.weather + nature.$data.season - nature.$data.solstice) * this.modifier;
+        this.food += (nature.$data.solstice + nature.$data.season - nature.$data.weather) * this.modifier;
+        this.water += (nature.$data.weather + nature.$data.solstice - nature.$data.season) * this.modifier;
         
+        /****************
+         *   SOL WEA SEA
+         * E  -   +   +
+         * F  +   -   +
+         * W  +   +   -
+         ****************/
     };
 
     return Village;
 })();
 
-var west = new Village('west');
-var east = new Village('east');
+var west = new Village('west', 1);
+var east = new Village('east', -1);
 
 var logicLoop = function() {
     west.update();
