@@ -29,9 +29,13 @@ var Village = (function() {
     }
 
     Village.prototype.update = function() {
-        this.energy += (nature.$data.weather + nature.$data.season - nature.$data.solstice) * this.modifier;
-        this.food += (nature.$data.solstice + nature.$data.season - nature.$data.weather) * this.modifier;
-        this.water += (nature.$data.weather + nature.$data.solstice - nature.$data.season) * this.modifier;
+        var solstice = parseInt(nature.$data.solstice);
+            weather = parseInt(nature.$data.weather);
+            season = parseInt(nature.$data.season);
+
+        this.energy += (weather + season - solstice) * this.modifier;
+        this.food += (solstice + season - weather) * this.modifier;
+        this.water += (weather + solstice - season) * this.modifier;
         
         /****************
          *   SOL WEA SEA
@@ -48,8 +52,8 @@ var Village = (function() {
     return Village;
 })();
 
-var west = new Village('west', 1);
-var east = new Village('east', -1);
+var west = new Village('west', -1);
+var east = new Village('east', 1);
 
 var logicLoop = function() {
     west.update();
