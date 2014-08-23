@@ -3,16 +3,27 @@
 <head>
     <title>Seasons</title>
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/normalize/3.0.1/normalize.min.css">
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <div>Energy: <span id="energy">10</span></div>
-    <div>Food: <span id="food">10</span></div>
-    <div>Water: <span id="water">10</span></div>
-    
-    <div id="nature">
-        <input type="range" id="solstice" min="-100" max="100" v-model="solstice">
-        <input type="range" id="weather" min="-100" max="100" v-model="weather">
-        <input type="range" id="season" min="-100" max="100" v-model="season">
+    <div class="container">
+        <div id="west">
+            <div>Energy: <span class="energy">1000</span></div>
+            <div>Food: <span class="food">1000</span></div>
+            <div>Water: <span class="water">1000</span></div>
+        </div>
+        
+        <div id="nature">
+            <input type="range" id="solstice" min="-100" max="100" v-model="solstice">
+            <input type="range" id="weather" min="-100" max="100" v-model="weather">
+            <input type="range" id="season" min="-100" max="100" v-model="season">
+        </div>
+        
+        <div id="east">
+            <div>Energy: <span class="energy">10</span></div>
+            <div>Food: <span class="food">10</span></div>
+            <div>Water: <span class="water">10</span></div>
+        </div>
     </div>
 
     <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>

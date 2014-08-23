@@ -9,9 +9,9 @@ var config = {
 var nature = new Vue({
     el: '#nature',
     data: {
-        solstice: 100,
-        weather: -100,
-        season: -100
+        solstice: 0,
+        weather: 0,
+        season: 0
     }
 });
 
@@ -24,6 +24,8 @@ var Village = (function() {
         this.energy = 1000;
         this.food = 1000;
         this.water = 1000;
+        
+
     }
 
     Village.prototype.update = function() {
@@ -37,6 +39,10 @@ var Village = (function() {
          * F  +   -   +
          * W  +   +   -
          ****************/
+         
+        $('#' + this.id + ' .energy').html(this.energy);
+        $('#' + this.id + ' .food').html(this.food);
+        $('#' + this.id + ' .water').html(this.water);
     };
 
     return Village;

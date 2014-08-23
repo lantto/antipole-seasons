@@ -1,0 +1,9 @@
+.container > div {
+    float: left;
+    margin-right: 10px;
+}
+
+#nature input {
+    display: block;
+    margin: 0 0 10px 0;
+}
