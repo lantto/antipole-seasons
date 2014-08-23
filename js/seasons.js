@@ -54,6 +54,13 @@ var Village = (function() {
             foodAlter = (solstice + season - weather) * this.modifier,
             waterAlter = (weather + solstice - season) * this.modifier;
             
+        /****************
+         *   SOL WEA SEA
+         * E  -   +   +
+         * F  +   -   +
+         * W  +   +   -
+         ****************/
+            
         this.energy += energyAlter - config.degeneration;
         this.food += foodAlter - config.degeneration;
         this.water += waterAlter - config.degeneration;
@@ -64,13 +71,6 @@ var Village = (function() {
         ) {
             alert(this.id + 'ern village died');
         }
-        
-        /****************
-         *   SOL WEA SEA
-         * E  -   +   +
-         * F  +   -   +
-         * W  +   +   -
-         ****************/
          
         $('#' + this.id + ' .energy').html(this.energy);
         $('#' + this.id + ' .food').html(this.food);
