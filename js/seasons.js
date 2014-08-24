@@ -262,8 +262,6 @@ var Entity = (function() {
         }
         
         if (this.type === 'villager') {
-            this.wiggleSpeed = 20;
-        
             this.direction = {
                 x: utils.random(-20, 20),
                 y: utils.random(-20, 20)
@@ -271,6 +269,15 @@ var Entity = (function() {
             
             this.lastStroll = Date.now();
             this.strollTimer = utils.random(6000, 10000);
+            
+            this.sleeping = false;
+            this.startedSleeping;
+            this.sleepTimer = Date.now();
+        }
+        
+        if (this.type === 'cloud') {
+            this.startX = x;
+            this.speed = utils.random(10, 20);
         }
     };
     
@@ -287,6 +294,14 @@ var Entity = (function() {
                 }
                 break;
             case 'villager':
+                if (this.sleeping && this.startedSleeping < Date.now() - 3000) {
+                    this.sleeping = false;
+                }
+                
+                if (this.sleeping) {
+                    return;
+                }
+            
                 this.x += this.direction.x * dt;
                 
                 // A lot of quick fixes here... TODO: Unroot the real problem
@@ -319,13 +334,40 @@ var Entity = (function() {
                     this.lastStroll = Date.now();
                 }
                 
+                var sleepProbability = parseInt(nature.$data.solstice) * -(villages[this.village].modifier);
+                
+                if (sleepProbability < 0) sleepProbability = 0;
+                
+                if (villages[this.village].energy > 1500 && villages[this.village].energy <= 3000) {
+                    sleepProbability += 30;
+                } else if (villages[this.village].energy <= 1500) {
+                    sleepProbability += 60;
+                }
+                
+                if (sleepProbability > 100) sleepProbability = 100;
+                
+                if (!this.sleeping && this.sleepTimer < Date.now() - 3000) {
+                    if (utils.random(1, 100) <= sleepProbability) {
+                        this.sleeping = true;
+                        this.startedSleeping = Date.now();
+                    }
+                    
+                    this.sleepTimer = Date.now();
+                }
+                
+                break;
+            case 'cloud':
+                this.x += this.speed * dt;
+                if (this.x > 512) this.x = -160; // No cloud larger than 160
                 break;
         }
     };
     
     Entity.prototype.render = function() {
         var sprite, happiness;
-    
+        
+        ctx[this.village].save();
+        
         if (this.type === 'villager') {
             var food;
             
@@ -346,11 +388,22 @@ var Entity = (function() {
             }
             
             sprite = this.sprite[food + '-' + happiness];
+            
+            if (this.sleeping) {
+                ctx[this.village].drawImage(images.get('img/zzz.png'), this.x - 17, this.y - 11);
+            }
         } else {
             sprite = this.sprite;
         }
         
+        if (this.type === 'cloud') {
+            var alpha = (100 + nature.$data.weather * villages[this.village].modifier) / 2 / 100;
+            ctx[this.village].globalAlpha = alpha;
+        }
+        
         ctx[this.village].drawImage(images.get(sprite), this.x, this.y);
+        
+        ctx[this.village].restore();
     };
     
     return Entity;
@@ -416,6 +469,11 @@ var init = function() {
         entities.push(new Entity(villagerSprites, utils.random(20, 480), utils.random(206, 480), 'west', 'villager'));
         entities.push(new Entity(villagerSprites, utils.random(20, 480), utils.random(206, 480), 'east', 'villager'));
     }
+    
+    for (var i = 0; i < 6; i++) {
+        entities.push(new Entity('img/cloud-' + utils.random(1, 3) + '.png', utils.random(-160, 512), utils.random(0, 100), 'west', 'cloud'));
+        entities.push(new Entity('img/cloud-' + utils.random(1, 3) + '.png', utils.random(-160, 512), utils.random(0, 100), 'east', 'cloud'));
+    }
 
     logicLoop();
     renderLoop();
@@ -433,7 +491,11 @@ images.load([
     'img/villager-2-3.png',
     'img/villager-3-1.png',
     'img/villager-3-2.png',
-    'img/villager-3-3.png'
+    'img/villager-3-3.png',
+    'img/zzz.png',
+    'img/cloud-1.png',
+    'img/cloud-2.png',
+    'img/cloud-3.png'
 ]);
 
 images.onReady(init);
