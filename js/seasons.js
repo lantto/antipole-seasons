@@ -2,6 +2,15 @@
 
 'use strict';
 
+window.requestAnimFrame = (function(){
+    return window.requestAnimationFrame 
+           || window.webkitRequestAnimationFrame
+           || window.mozRequestAnimationFrame
+           || window.oRequestAnimationFrame 
+           || window.msRequestAnimationFrame
+           || function(/* function */ callback, /* DOMElement */ element){ window.setTimeout(callback, 1000 / 60); };
+})();
+
 var utils = {
     random: function(min,max) {
         return Math.floor(Math.random()*(max-min+1)+min);
@@ -175,5 +184,9 @@ var logicLoop = function() {
 }
 
 setTimeout(logicLoop, config.logicTimer);
+
+var renderLoop = function() {
+
+}
 
 })(jQuery, Vue, window);
