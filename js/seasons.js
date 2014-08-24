@@ -24,6 +24,12 @@ var config = {
     }
 };
 
+var resources = [];
+
+for (var prop in config.opposites) {
+    resources.push(prop);
+}
+
 var nature = new Vue({
     el: '#nature',
     data: {
@@ -50,17 +56,17 @@ var Village = (function() {
             = this.heat 
             = config.baseValue;
             
-            var resources = ['energy', 'food', 'water', 'happiness', 'chill', 'heat'];
+            var tempResources = resources.slice(0);;
             
             var pool = config.pool.slice(0);
             
-            while (resources.length > 0) {
-                var resourceIndex = utils.random(0, resources.length - 1);
+            while (tempResources.length > 0) {
+                var resourceIndex = utils.random(0, tempResources.length - 1);
                 var poolIndex = utils.random(0, pool.length - 1);
-                var resource = resources[resourceIndex];
+                var resource = tempResources[resourceIndex];
                 this[resource] += pool[poolIndex];
-                resources.splice(resourceIndex, 1);
-                resources.splice(resources.indexOf(config.opposites[resource]), 1);
+                tempResources.splice(resourceIndex, 1);
+                tempResources.splice(tempResources.indexOf(config.opposites[resource]), 1);
                 resourcesForSecondVillage[config.opposites[resource]] = pool[poolIndex];
                 
                 var oppositePool;
@@ -127,13 +133,18 @@ var Village = (function() {
         this.happiness += happinessAlter;
         this.chill += chillAlter;
         this.heat += heatAlter;
+
+        for (var i = 0; i < resources.length; i++) {
+            $('#' + this.id + ' .' + resources[i]).html(this[resources[i]]);
+            if (this[resources[i]] > config.maxValue) this[resources[i]] = config.maxValue; // Will this ever happen?
+        }
         
-        if (this.energy > config.maxValue) this.energy = config.maxValue;
-        if (this.food > config.maxValue) this.food = config.maxValue;
-        if (this.water > config.maxValue) this.water = config.maxValue;
-        if (this.happiness > config.maxValue) this.happiness = config.maxValue;
-        if (this.chill > config.maxValue) this.chill = config.maxValue;
-        if (this.heat > config.maxValue) this.heat = config.maxValue;
+        $('#' + this.id + ' .energy-alter').html(energyAlter);
+        $('#' + this.id + ' .food-alter').html(foodAlter);
+        $('#' + this.id + ' .water-alter').html(waterAlter);
+        $('#' + this.id + ' .happiness-alter').html(happinessAlter);
+        $('#' + this.id + ' .chill-alter').html(chillAlter);
+        $('#' + this.id + ' .heat-alter').html(heatAlter);
         
         if (this.energy <= 0
             || this.food <= 0
@@ -144,20 +155,6 @@ var Village = (function() {
         ) {
             console.log(this.id + 'ern village died');
         }
-         
-        $('#' + this.id + ' .energy').html(this.energy);
-        $('#' + this.id + ' .food').html(this.food);
-        $('#' + this.id + ' .water').html(this.water);
-        $('#' + this.id + ' .happiness').html(this.happiness);
-        $('#' + this.id + ' .chill').html(this.chill);
-        $('#' + this.id + ' .heat').html(this.heat);
-        
-        $('#' + this.id + ' .energy-alter').html(energyAlter);
-        $('#' + this.id + ' .food-alter').html(foodAlter);
-        $('#' + this.id + ' .water-alter').html(waterAlter);
-        $('#' + this.id + ' .happiness-alter').html(happinessAlter);
-        $('#' + this.id + ' .chill-alter').html(chillAlter);
-        $('#' + this.id + ' .heat-alter').html(heatAlter);
     };
     
     Village.prototype.getIncrementValue = function(element) {
