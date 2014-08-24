@@ -7,7 +7,12 @@
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <div class="container">
+    <div id="intro">
+        <h1>Seasons</h1>
+        <p id="loading">Loading...</p>
+        <button id="start" style="display: none">Start</button>
+    </div>
+    <div class="game" style="display: none">
         <div id="west">
             <canvas id="west-canvas" width="512" height="512"></canvas>
             <div id="west-shade" class="shade"></div>
@@ -28,15 +33,15 @@
         
         <div id="nature">
             <div>
-                <p>+ Food - Energy</p>
+                <p>Sun</p>
                 <input type="range" id="solstice" min="-100" max="100" v-model="solstice">
             </div>
             <div>
-                <p>+ Water - Happiness</p>
+                <p>Clouds</p>
                 <input type="range" id="weather" min="-100" max="100" v-model="weather">
             </div>
             <div>
-                <p>+ Chill - Heat</p>
+                <p>Winter</p>
                 <input type="range" id="season" min="-100" max="100" v-model="season">
             </div>
         </div>

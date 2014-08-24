@@ -78,6 +78,13 @@ var images = (function() {
 var utils = {
     random: function(min,max) {
         return Math.floor(Math.random()*(max-min+1)+min);
+    },
+    removeById: function(id, coll) {
+        for (var i = 0; i < coll.length; i++) {
+            if (coll[i].id === id) {
+                coll.splice(i, 1);
+            }
+        }
     }
 };
 
@@ -94,7 +101,8 @@ var config = {
         happiness: 'water',
         chill: 'heat',
         heat: 'chill'
-    }
+    },
+    rainTimer: 30
 };
 
 var resources = [];
@@ -279,6 +287,10 @@ var Entity = (function() {
             this.startX = x;
             this.speed = utils.random(10, 20);
         }
+        
+        if (this.type === 'rain' || this.type === 'snowflake') {
+            this.id = downfallId;
+        }
     };
     
     Entity.prototype.update = function(dt) {
@@ -360,6 +372,14 @@ var Entity = (function() {
                 this.x += this.speed * dt;
                 if (this.x > 512) this.x = -160; // No cloud larger than 160
                 break;
+            case 'rain':
+                this.y += 1000 * dt;
+                if (this.y >= 512) utils.removeById(this.id, entities);
+                break;
+            case 'snowflake':
+                this.y += 50 * dt;
+                if (this.y >= 512) utils.removeById(this.id, entities);
+                break;
         }
     };
     
@@ -367,18 +387,18 @@ var Entity = (function() {
         var sprite, happiness;
         
         ctx[this.village].save();
+    
+        var food;
+        
+        if (villages[this.village].food > 3000) {
+            food = 3;
+        } else if (villages[this.village].food > 1500) {
+            food = 2;
+        } else {
+            food = 1;
+        }
         
         if (this.type === 'villager') {
-            var food;
-            
-            if (villages[this.village].food > 3000) {
-                food = 3;
-            } else if (villages[this.village].food > 1500) {
-                food = 2;
-            } else {
-                food = 1;
-            }
-            
             if (villages[this.village].happiness > 3000) {
                 happiness = 3;
             } else if (villages[this.village].happiness > 1500) {
@@ -392,11 +412,37 @@ var Entity = (function() {
             if (this.sleeping) {
                 ctx[this.village].drawImage(images.get('img/zzz.png'), this.x - 17, this.y - 11);
             }
+        } else if (this.type === 'plant') {
+            sprite = this.sprite[food];
+        } else if (this.type === 'water') {
+            var water;
+            
+            if (villages[this.village].water > 3000) {
+                water = 3;
+            } else if (villages[this.village].water > 1500) {
+                water = 2;
+            } else {
+                water = 1;
+            }
+            
+            sprite = this.sprite[water];
+        } else if (this.type === 'snow') {
+            var chill;
+            
+            if (villages[this.village].chill > 3000) {
+                chill = 3;
+            } else if (villages[this.village].chill > 1500) {
+                chill = 2;
+            } else {
+                chill = 1;
+            }
+            
+            sprite = this.sprite[chill];
         } else {
             sprite = this.sprite;
         }
         
-        if (this.type === 'cloud') {
+        if (this.type === 'cloud' || this.type === 'rain' || this.type === 'snowflake') {
             var alpha = (100 + nature.$data.weather * villages[this.village].modifier) / 2 / 100;
             ctx[this.village].globalAlpha = alpha;
         }
@@ -423,9 +469,33 @@ var renderLoop = function() {
 
 var entities = [];
 
+var lastRain = Date.now();
+var downfallId = 0;
+
 var update = function(dt) {
     for (var i = 0; i <  entities.length; i++) {
         entities[i].update(dt);
+    }
+    
+    if (lastRain < Date.now() - config.rainTimer) {
+        downfallId++;
+        
+        
+
+        if (utils.random(1, 100) <= (100 + nature.$data.season * -villages.west.modifier)) {
+            entities.push(new Entity('img/rain.png', utils.random(0, 512), 0, 'west', 'rain'));
+        } else {
+            entities.push(new Entity('img/snowflake.png', utils.random(0, 512), 0, 'west', 'snowflake'));
+        }
+        
+        downfallId++;
+        if (utils.random(1, 100) <= (100 + nature.$data.season * -villages.east.modifier)) {
+            entities.push(new Entity('img/rain.png', utils.random(0, 512), 0, 'east', 'rain'));
+        } else {
+            entities.push(new Entity('img/snowflake.png', utils.random(0, 512), 0, 'east', 'snowflake'));
+        }
+        
+        lastRain = Date.now();
     }
 };
 
@@ -456,6 +526,38 @@ var villagerSprites = {
     '3-3': 'img/villager-3-3.png'
 };
 
+var plantSprites = {
+    1: 'img/plant-1.png',
+    2: 'img/plant-2.png',
+    3: 'img/plant-3.png'
+}
+
+var waterSprites = {
+    1: 'img/water-1.png',
+    2: 'img/water-2.png',
+    3: 'img/water-3.png'
+}
+
+var snowSprites = {
+    1: 'img/snow-1.png',
+    2: 'img/snow-2.png',
+    3: 'img/snow-3.png'
+}
+
+var ready = function() {
+    $('#loading').fadeOut(function() {
+        $('#start').fadeIn();
+    });
+    
+};
+
+$('#start').click(function() {
+    $('#intro').fadeOut(function() {
+        $('.game').fadeIn();
+        init();
+    });
+});
+
 var init = function() {
     entities.push(new Entity('img/sky.png', 0, 0, 'west'));
     entities.push(new Entity('img/sun.png', 224, 100, 'west', 'sun'));
@@ -466,11 +568,26 @@ var init = function() {
     entities.push(new Entity('img/ground.png', 0, 176, 'east'));
     
     for (var i = 0; i < 5; i++) {
+        entities.push(new Entity(waterSprites, utils.random(20, 480), utils.random(206, 480), 'west', 'water'));
+        entities.push(new Entity(waterSprites, utils.random(20, 480), utils.random(206, 480), 'east', 'water'));
+    }
+    
+    for (var i = 0; i < 5; i++) {
+        entities.push(new Entity(snowSprites, utils.random(20, 480), utils.random(206, 480), 'west', 'snow'));
+        entities.push(new Entity(snowSprites, utils.random(20, 480), utils.random(206, 480), 'east', 'snow'));
+    }
+
+    for (var i = 0; i < 5; i++) {
         entities.push(new Entity(villagerSprites, utils.random(20, 480), utils.random(206, 480), 'west', 'villager'));
         entities.push(new Entity(villagerSprites, utils.random(20, 480), utils.random(206, 480), 'east', 'villager'));
     }
     
-    for (var i = 0; i < 6; i++) {
+    for (var i = 0; i < 5; i++) {
+        entities.push(new Entity(plantSprites, utils.random(20, 480), utils.random(206, 480), 'west', 'plant'));
+        entities.push(new Entity(plantSprites, utils.random(20, 480), utils.random(206, 480), 'east', 'plant'));
+    }
+    
+    for (var i = 0; i < 10; i++) {
         entities.push(new Entity('img/cloud-' + utils.random(1, 3) + '.png', utils.random(-160, 512), utils.random(0, 100), 'west', 'cloud'));
         entities.push(new Entity('img/cloud-' + utils.random(1, 3) + '.png', utils.random(-160, 512), utils.random(0, 100), 'east', 'cloud'));
     }
@@ -495,9 +612,23 @@ images.load([
     'img/zzz.png',
     'img/cloud-1.png',
     'img/cloud-2.png',
-    'img/cloud-3.png'
+    'img/cloud-3.png',
+    'img/rain.png',
+    'img/snowflake.png',
+    'img/plant-1.png',
+    'img/plant-2.png',
+    'img/plant-3.png',
+    'img/water-1.png',
+    'img/water-2.png',
+    'img/water-3.png',
+    'img/snow-1.png',
+    'img/snow-2.png',
+    'img/snow-3.png'
 ]);
 
-images.onReady(init);
+var music = new Audio('../sfx/seasons.mp3');
+var rain = new Audio('../sfx/rain.mp3');
+
+images.onReady(ready);
 
 })(jQuery, Vue, window);
