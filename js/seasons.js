@@ -256,12 +256,25 @@ var Entity = (function() {
         this.village = village;
         this.type = type || 'static';
         
+        // TODO: Separate every special entity to own class inheriting from Entity.prototype
         if (this.type === 'sun') {
             this.lastFade = Date.now();
         }
+        
+        if (this.type === 'villager') {
+            this.wiggleSpeed = 20;
+        
+            this.direction = {
+                x: utils.random(-20, 20),
+                y: utils.random(-20, 20)
+            };
+            
+            this.lastStroll = Date.now();
+            this.strollTimer = utils.random(6000, 10000);
+        }
     };
     
-    Entity.prototype.update = function() {
+    Entity.prototype.update = function(dt) {
         if (this.type === 'static') return;
         
         switch (this.type) {
@@ -273,11 +286,45 @@ var Entity = (function() {
                     this.lastFade = Date.now();
                 }
                 break;
+            case 'villager':
+                this.x += this.direction.x * dt;
+                
+                // A lot of quick fixes here... TODO: Unroot the real problem
+                
+                if (this.x < 20) {
+                    this.x = 20;
+                    this.direction.x = -this.direction.x;
+                }
+                
+                if (this.x > 480) {
+                    this.x = 480;
+                    this.direction.x = -this.direction.x;
+                }
+                
+                this.y += this.direction.y * dt;
+                
+                if (this.y < 206) {
+                    this.y = 206;
+                    this.direction.y = -this.direction.y;
+                }
+                
+                if (this.y > 480) {
+                    this.y = 480;
+                    this.direction.y = -this.direction.y;
+                }
+                
+                if (this.lastStroll < Date.now() - this.strollTimer) {
+                    this.direction.x = utils.random(-20, 20);
+                    this.direction.y = utils.random(-20, 20);
+                    this.lastStroll = Date.now();
+                }
+                
+                break;
         }
     };
     
     Entity.prototype.render = function() {
-        var sprite;
+        var sprite, happiness;
     
         if (this.type === 'villager') {
             var food;
@@ -290,7 +337,15 @@ var Entity = (function() {
                 food = 1;
             }
             
-            sprite = this.sprite[food + '-3'];
+            if (villages[this.village].happiness > 3000) {
+                happiness = 3;
+            } else if (villages[this.village].happiness > 1500) {
+                happiness = 2;
+            } else {
+                happiness = 1;
+            }
+            
+            sprite = this.sprite[food + '-' + happiness];
         } else {
             sprite = this.sprite;
         }
@@ -301,7 +356,7 @@ var Entity = (function() {
     return Entity;
 })();
 
-var lastTime;
+var lastTime = Date.now();
 var renderLoop = function() {
     var now = Date.now();
     var dt = (now - lastTime) / 1000.0;
@@ -337,14 +392,14 @@ var render = function() {
 
 var villagerSprites = {
     // Seriously ugly but I don't have time to do this properly (with layering etc)... 12 hours left!
-    '1-1': 'img/villager-3-3.png',
-    '1-2': 'img/villager-3-3.png',
-    '1-3': 'img/villager-3-3.png',
-    '2-1': 'img/villager-3-3.png',
-    '2-2': 'img/villager-3-3.png',
-    '2-3': 'img/villager-3-3.png',
-    '3-1': 'img/villager-3-3.png',
-    '3-2': 'img/villager-3-3.png',
+    '1-1': 'img/villager-1-1.png',
+    '1-2': 'img/villager-1-2.png',
+    '1-3': 'img/villager-1-3.png',
+    '2-1': 'img/villager-2-1.png',
+    '2-2': 'img/villager-2-2.png',
+    '2-3': 'img/villager-2-3.png',
+    '3-1': 'img/villager-3-1.png',
+    '3-2': 'img/villager-3-2.png',
     '3-3': 'img/villager-3-3.png'
 };
 
@@ -352,11 +407,15 @@ var init = function() {
     entities.push(new Entity('img/sky.png', 0, 0, 'west'));
     entities.push(new Entity('img/sun.png', 224, 100, 'west', 'sun'));
     entities.push(new Entity('img/ground.png', 0, 176, 'west'));
-    entities.push(new Entity(villagerSprites, 200, 200, 'west', 'villager'));
-    
+
     entities.push(new Entity('img/sky.png', 0, 0, 'east'));
     entities.push(new Entity('img/sun.png', 224, 100, 'east', 'sun'));
     entities.push(new Entity('img/ground.png', 0, 176, 'east'));
+    
+    for (var i = 0; i < 5; i++) {
+        entities.push(new Entity(villagerSprites, utils.random(20, 480), utils.random(206, 480), 'west', 'villager'));
+        entities.push(new Entity(villagerSprites, utils.random(20, 480), utils.random(206, 480), 'east', 'villager'));
+    }
 
     logicLoop();
     renderLoop();
@@ -366,6 +425,14 @@ images.load([
     'img/sky.png',
     'img/ground.png',
     'img/sun.png',
+    'img/villager-1-1.png',
+    'img/villager-1-2.png',
+    'img/villager-1-3.png',
+    'img/villager-2-1.png',
+    'img/villager-2-2.png',
+    'img/villager-2-3.png',
+    'img/villager-3-1.png',
+    'img/villager-3-2.png',
     'img/villager-3-3.png'
 ]);
 
