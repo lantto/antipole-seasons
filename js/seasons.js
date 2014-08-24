@@ -2,13 +2,77 @@
 
 'use strict';
 
-window.requestAnimFrame = (function(){
+// RAF shim
+var requestAnimFrame = (function(){
     return window.requestAnimationFrame 
            || window.webkitRequestAnimationFrame
            || window.mozRequestAnimationFrame
            || window.oRequestAnimationFrame 
            || window.msRequestAnimationFrame
-           || function(/* function */ callback, /* DOMElement */ element){ window.setTimeout(callback, 1000 / 60); };
+           || function(callback, element){ window.setTimeout(callback, 1000 / 60); };
+})();
+
+// Image loader (by jlongster: https://github.com/jlongster/canvas-game-bootstrap/blob/master/js/resources.js)
+var images = (function() {
+    var resourceCache = {};
+    var loading = [];
+    var readyCallbacks = [];
+
+    // Load an image url or an array of image urls
+    function load(urlOrArr) {
+        if(urlOrArr instanceof Array) {
+            urlOrArr.forEach(function(url) {
+                _load(url);
+            });
+        }
+        else {
+            _load(urlOrArr);
+        }
+    }
+
+    function _load(url) {
+        if(resourceCache[url]) {
+            return resourceCache[url];
+        }
+        else {
+            var img = new Image();
+            img.onload = function() {
+                resourceCache[url] = img;
+
+                if(isReady()) {
+                    readyCallbacks.forEach(function(func) { func(); });
+                }
+            };
+            resourceCache[url] = false;
+            img.src = url;
+        }
+    }
+
+    function get(url) {
+        return resourceCache[url];
+    }
+
+    function isReady() {
+        var ready = true;
+        for(var k in resourceCache) {
+            if(resourceCache.hasOwnProperty(k) &&
+               !resourceCache[k]) {
+                ready = false;
+            }
+        }
+        return ready;
+    }
+
+    function onReady(func) {
+        readyCallbacks.push(func);
+    }
+
+    return { 
+        load: load,
+        get: get,
+        onReady: onReady,
+        isReady: isReady
+    };
 })();
 
 var utils = {
@@ -108,7 +172,6 @@ var Village = (function() {
                 pool.splice(pool.indexOf(oppositePool), 1);
             }
         } else {
-            console.log(resourcesForSecondVillage);
             for (var resource in resourcesForSecondVillage) {
                 this[resource] = config.baseValue + resourcesForSecondVillage[resource];
             }
@@ -185,8 +248,34 @@ var logicLoop = function() {
 
 setTimeout(logicLoop, config.logicTimer);
 
-var renderLoop = function() {
 
-}
+
+var Entity = (function() {
+    function Entity(id, modifier, first) {
+    
+    };
+    
+    Entity.prototype.update = function() {
+    
+    };
+    
+    Entity.prototype.render = function() {
+    
+    };
+})();
+
+var lastTime;
+var renderLoop = function() {
+    var now = Date.now();
+    var dt = (now - lastTime) / 1000.0;
+    
+    update(dt);
+    render();
+
+    lastTime = now;
+    requestAnimFrame(main);
+};
+
+renderLoop();
 
 })(jQuery, Vue, window);
