@@ -12,7 +12,7 @@ var requestAnimFrame = (function(){
            || function(callback, element){ window.setTimeout(callback, 1000 / 60); };
 })();
 
-// Image loader (by jlongster: https://github.com/jlongster/canvas-game-bootstrap/blob/master/js/resources.js)
+// Image loader by jlongster: https://github.com/jlongster/canvas-game-bootstrap/blob/master/js/resources.js
 var images = (function() {
     var resourceCache = {};
     var loading = [];
@@ -236,32 +236,69 @@ var Village = (function() {
     return Village;
 })();
 
-var west = new Village('west', -1, true);
-var east = new Village('east', 1);
+var villages = {
+    west: new Village('west', -1, true),
+    east: new Village('east', 1)
+};
 
 var logicLoop = function() {
-    west.update();
-    east.update();
+    villages.west.update();
+    villages.east.update();
     
     setTimeout(logicLoop, config.logicTimer);
 }
 
-setTimeout(logicLoop, config.logicTimer);
-
-
-
 var Entity = (function() {
-    function Entity(id, modifier, first) {
-    
+    function Entity(sprite, x, y, village, type) {
+        this.sprite = sprite;
+        this.x = x;
+        this.y = y;
+        this.village = village;
+        this.type = type || 'static';
+        
+        if (this.type === 'sun') {
+            this.lastFade = Date.now();
+        }
     };
     
     Entity.prototype.update = function() {
-    
+        if (this.type === 'static') return;
+        
+        switch (this.type) {
+            case 'sun':
+                this.y = 150 + (parseInt(nature.$data.solstice) * -(villages[this.village].modifier));
+                
+                if (this.lastFade < Date.now() - 100) {
+                    $('#' + this.village + '-shade').fadeTo(100, (100 + (parseInt(nature.$data.solstice) * -(villages[this.village].modifier))) / 200 * 0.5);
+                    this.lastFade = Date.now();
+                }
+                break;
+        }
     };
     
     Entity.prototype.render = function() {
+        var sprite;
     
+        if (this.type === 'villager') {
+            var food;
+            
+            if (villages[this.village].food > 3000) {
+                food = 3;
+            } else if (villages[this.village].food > 1500) {
+                food = 2;
+            } else {
+                food = 1;
+            }
+            
+            sprite = this.sprite[food + '-3'];
+        } else {
+            sprite = this.sprite;
+        }
+        
+        ctx[this.village].drawImage(images.get(sprite), this.x, this.y);
     };
+    
+    return Entity;
 })();
 
 var lastTime;
@@ -273,9 +310,65 @@ var renderLoop = function() {
     render();
 
     lastTime = now;
-    requestAnimFrame(main);
+    requestAnimFrame(renderLoop);
 };
 
-renderLoop();
+var entities = [];
+
+var update = function(dt) {
+    for (var i = 0; i <  entities.length; i++) {
+        entities[i].update(dt);
+    }
+};
+
+var ctx = {
+    west: document.getElementById('west-canvas').getContext('2d'),
+    east: document.getElementById('east-canvas').getContext('2d')
+}
+
+var render = function() {
+    ctx.west.clearRect(0, 0, 512, 512);
+    ctx.east.clearRect(0, 0, 512, 512);
+
+    for (var i = 0; i <  entities.length; i++) {
+        entities[i].render();
+    }
+};
+
+var villagerSprites = {
+    // Seriously ugly but I don't have time to do this properly (with layering etc)... 12 hours left!
+    '1-1': 'img/villager-3-3.png',
+    '1-2': 'img/villager-3-3.png',
+    '1-3': 'img/villager-3-3.png',
+    '2-1': 'img/villager-3-3.png',
+    '2-2': 'img/villager-3-3.png',
+    '2-3': 'img/villager-3-3.png',
+    '3-1': 'img/villager-3-3.png',
+    '3-2': 'img/villager-3-3.png',
+    '3-3': 'img/villager-3-3.png'
+};
+
+var init = function() {
+    entities.push(new Entity('img/sky.png', 0, 0, 'west'));
+    entities.push(new Entity('img/sun.png', 224, 100, 'west', 'sun'));
+    entities.push(new Entity('img/ground.png', 0, 176, 'west'));
+    entities.push(new Entity(villagerSprites, 200, 200, 'west', 'villager'));
+    
+    entities.push(new Entity('img/sky.png', 0, 0, 'east'));
+    entities.push(new Entity('img/sun.png', 224, 100, 'east', 'sun'));
+    entities.push(new Entity('img/ground.png', 0, 176, 'east'));
+
+    logicLoop();
+    renderLoop();
+};
+
+images.load([
+    'img/sky.png',
+    'img/ground.png',
+    'img/sun.png',
+    'img/villager-3-3.png'
+]);
+
+images.onReady(init);
 
 })(jQuery, Vue, window);
