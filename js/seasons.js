@@ -95,7 +95,7 @@ var config = {
     logicTimer: 500,
     pool: [7500, 7500, 5000, 5000, 2500, 2500],
     baseValue: 0,
-    degeneration: 66,
+    degeneration: 65,
     opposites: {
         energy: 'food',
         food: 'energy',
