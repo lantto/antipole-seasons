@@ -257,7 +257,7 @@ var Village = (function() {
     };
     
     Village.prototype.getIncrementValue = function(element) {
-        return 50 + element / 2 - utils.random(config.degeneration-10, config.degeneration+10);
+        return 50 + element / 2 - utils.random(config.degeneration-20, config.degeneration+20);
     };
 
     return Village;
