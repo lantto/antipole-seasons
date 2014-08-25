@@ -41,6 +41,10 @@ button {
     margin: 0 0 10px 0;
 }
 
+#nature input {
+    width: 129px;
+}
+
 canvas {
     z-index: 1;
 }
@@ -69,4 +73,8 @@ canvas {
 
 #why {
     color: #ff3300;
+}
+
+#sound {
+    margin-top: 20px;
 }
