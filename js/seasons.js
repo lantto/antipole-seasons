@@ -1,4 +1,4 @@
-(function($, Vue, window, undefined) {
+(function($, Vue, window, location, undefined) {
 
 'use strict';
 
@@ -85,15 +85,17 @@ var utils = {
                 coll.splice(i, 1);
             }
         }
-    }
+    },
+    capitaliseFirstLetter: function(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
 };
 
 var config = {
     logicTimer: 500,
     pool: [7500, 7500, 5000, 5000, 2500, 2500],
     baseValue: 0,
-    maxValue: 10000,
-    degeneration: 60,
+    degeneration: 66,
     opposites: {
         energy: 'food',
         food: 'energy',
@@ -189,13 +191,7 @@ var Village = (function() {
     Village.prototype.update = function() {
         var solstice = parseInt(nature.$data.solstice) * this.modifier,
             weather = parseInt(nature.$data.weather) * this.modifier,
-            season = parseInt(nature.$data.season) * this.modifier,
-            energyAlter = this.getIncrementValue(-solstice),
-            foodAlter = this.getIncrementValue(solstice),
-            waterAlter = this.getIncrementValue(weather),
-            happinessAlter = this.getIncrementValue(-weather),
-            chillAlter = this.getIncrementValue(season),
-            heatAlter = this.getIncrementValue(-season);
+            season = parseInt(nature.$data.season) * this.modifier;
 
         /****************
          *   SOL WEA SEA
@@ -207,24 +203,42 @@ var Village = (function() {
          * H          -
          ****************/
         
-        this.energy += energyAlter;
-        this.food += foodAlter;
-        this.water += waterAlter;
-        this.happiness += happinessAlter;
-        this.chill += chillAlter;
-        this.heat += heatAlter;
-
-        for (var i = 0; i < resources.length; i++) {
-            $('#' + this.id + ' .' + resources[i]).html(this[resources[i]]);
-            if (this[resources[i]] > config.maxValue) this[resources[i]] = config.maxValue; // Will this ever happen?
+        this.energy += this.getIncrementValue(-solstice);
+        this.food += this.getIncrementValue(solstice);
+        this.water += this.getIncrementValue(weather);
+        this.happiness += this.getIncrementValue(-weather);
+        this.chill += this.getIncrementValue(season);
+        this.heat += this.getIncrementValue(-season);
+        
+        if (this.energy <= 0) {
+            $('#why').html(utils.capitaliseFirstLetter(this.id) + ' died of exhaustion.');
+            $('#tip').html('The creatures need to sleep in darkness to regain energy. A sign of exhaustion is falling asleep in broad daylight.');
         }
         
-        $('#' + this.id + ' .energy-alter').html(energyAlter);
-        $('#' + this.id + ' .food-alter').html(foodAlter);
-        $('#' + this.id + ' .water-alter').html(waterAlter);
-        $('#' + this.id + ' .happiness-alter').html(happinessAlter);
-        $('#' + this.id + ' .chill-alter').html(chillAlter);
-        $('#' + this.id + ' .heat-alter').html(heatAlter);
+        if (this.food <= 0) {
+            $('#why').html(utils.capitaliseFirstLetter(this.id) + ' died of starvation.');
+            $('#tip').html('The creatures eat plants. Plants need daylight. A skinny creature is a certain sign of hunger.');
+        }
+        
+        if (this.water <= 0) {
+            $('#why').html(utils.capitaliseFirstLetter(this.id) + ' died of dehydration.');
+            $('#tip').html('Without water the creatures dehydrate. Keep an eye on the ponds and let it rain if they dry out.');
+        }
+        
+        if (this.happiness <= 0) {
+            $('#why').html(utils.capitaliseFirstLetter(this.id) + ' died of sadness.');
+            $('#tip').html('The creatures love good weather and hate rain. If you see them crying it probably means that they\'re unhappy.');
+        }
+        
+        if (this.chill <= 0) {
+            $('#why').html(utils.capitaliseFirstLetter(this.id) + ' died of overheating.');
+            $('#tip').html('The creatures need snow to cool down once in a while. Don\'t let the pile of snows melt away.');
+        }
+        
+        if (this.heat <= 0) {
+            $('#why').html(utils.capitaliseFirstLetter(this.id) + ' died of hypothermia.');
+            $('#tip').html('Too much winter and the creatures will freeze to death. If they shiver they are cold.');
+        }
         
         if (this.energy <= 0
             || this.food <= 0
@@ -233,12 +247,17 @@ var Village = (function() {
             || this.chill <= 0
             || this.heat <= 0
         ) {
-            console.log(this.id + 'ern village died');
+            $('#score').html(score/2);
+            gameOver = true;
+            ambient.pause();
+            $('.game').fadeOut(function() {
+                $('#game-over').fadeIn();
+            });
         }
     };
     
     Village.prototype.getIncrementValue = function(element) {
-        return 50 + element / 2 - config.degeneration;
+        return 50 + element / 2 - utils.random(config.degeneration-10, config.degeneration+10);
     };
 
     return Village;
@@ -249,11 +268,17 @@ var villages = {
     east: new Village('east', 1)
 };
 
+var score = 0;
+var gameOver = false;
+
 var logicLoop = function() {
     villages.west.update();
     villages.east.update();
     
-    setTimeout(logicLoop, config.logicTimer);
+    score++;
+    
+    
+    if (!gameOver) setTimeout(logicLoop, config.logicTimer);
 }
 
 var Entity = (function() {
@@ -281,6 +306,9 @@ var Entity = (function() {
             this.sleeping = false;
             this.startedSleeping;
             this.sleepTimer = Date.now();
+            
+            this.shiver = 1;
+            this.lastShiver = Date.now();
         }
         
         if (this.type === 'cloud') {
@@ -447,8 +475,28 @@ var Entity = (function() {
             ctx[this.village].globalAlpha = alpha;
         }
         
-        ctx[this.village].drawImage(images.get(sprite), this.x, this.y);
+        var x;
         
+        if (this.type === 'villager' && this.lastShiver < Date.now() - utils.random(100, 150)) {
+            var shiver = 0;
+        
+            if (villages[this.village].heat > 1500 && villages[this.village].heat <= 3000) {
+                shiver = 2;
+            } else if (villages[this.village].heat <= 1500) {
+                shiver = 3;
+            }
+            
+            x = this.x + shiver * this.shiver;
+        
+            this.shiver = -this.shiver;
+            
+            this.lastShiver = Date.now();
+        } else {
+            x = this.x;
+        }
+        
+        ctx[this.village].drawImage(images.get(sprite), x, this.y);
+            
         ctx[this.village].restore();
     };
     
@@ -459,6 +507,8 @@ var lastTime = Date.now();
 var renderLoop = function() {
     var now = Date.now();
     var dt = (now - lastTime) / 1000.0;
+    
+    if (gameOver) return;
     
     update(dt);
     render();
@@ -559,6 +609,8 @@ $('#start').click(function() {
 });
 
 var init = function() {
+    ambient.play();
+
     entities.push(new Entity('img/sky.png', 0, 0, 'west'));
     entities.push(new Entity('img/sun.png', 224, 100, 'west', 'sun'));
     entities.push(new Entity('img/ground.png', 0, 176, 'west'));
@@ -626,9 +678,48 @@ images.load([
     'img/snow-3.png'
 ]);
 
-var music = new Audio('../sfx/seasons.mp3');
-var rain = new Audio('../sfx/rain.mp3');
+var ambientReady = false;
 
-images.onReady(ready);
+var ambient = new Audio('sfx/ambient.mp3');
 
-})(jQuery, Vue, window);
+ambient.addEventListener('canplaythrough', function() { 
+    if (imagesReady) {
+        ready();
+    }
+    
+    ambientReady = true;
+}, false);
+
+ambient.addEventListener('ended', function() { 
+   ambient.play();
+}, false);
+
+var imagesReady = false;
+
+images.onReady(function() {
+    if (ambientReady) {
+        ready();
+    }
+    
+    imagesReady = true;
+});
+
+var sound = true;
+
+$('#sound').click(function() {
+    sound = !sound;
+    
+    if (sound) {
+        ambient.volume = 1;
+        $(this).html('Sound off');
+    } else {
+        ambient.volume= 0;
+        $(this).html('Sound on');
+    }
+});
+
+$('#restart').click(function() {
+    location.reload();
+});
+
+})(jQuery, Vue, window, location);

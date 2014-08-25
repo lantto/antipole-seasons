@@ -1,5 +1,29 @@
+body {
+    color: #5eab00;
+    background-color: black;
+    font-family: 'Oswald', sans-serif;
+}
+
+button {
+    background-color: black;
+    border: 1px solid grey;
+}
+
+#intro, #game-over {
+    text-align: center;
+}
+
+.game {
+    width: 1173px;
+    margin: 10px auto;
+    text-align: center;
+}
+
 .game > div {
     float: left;
+}
+
+#west, #nature {
     margin: 0 10px 0 0;
 }
 
@@ -8,13 +32,13 @@
     position: relative;
 }
 
+#nature {
+    width: 129px;
+}
+
 #nature > div {
     display: block;
     margin: 0 0 10px 0;
-}
-
-#nature > div > p {
-    text-align: center;
 }
 
 canvas {
@@ -29,4 +53,20 @@ canvas {
     position: absolute;
     top: 0;
     left: 0;
+}
+
+.sun, #score {
+    color: #ffba00;
+}
+
+.clouds {
+    color: grey;
+}
+
+.winter {
+    color: white;
+}
+
+#why {
+    color: #ff3300;
 }

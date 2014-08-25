@@ -1,14 +1,14 @@
 <!doctype html>
 <html>
 <head>
-    <title>Seasons</title>
-    <!-- <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/normalize/3.0.1/normalize.min.css"> -->
-    <link rel="stylesheet" href="css/normalize.min.css">
+    <title>Antipole Seasons</title>
+    <link href="http://fonts.googleapis.com/css?family=Oswald" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/normalize/3.0.1/normalize.min.css">
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
     <div id="intro">
-        <h1>Seasons</h1>
+        <h1>Antipole Seasons</h1>
         <p id="loading">Loading...</p>
         <button id="start" style="display: none">Start</button>
     </div>
@@ -16,59 +16,39 @@
         <div id="west">
             <canvas id="west-canvas" width="512" height="512"></canvas>
             <div id="west-shade" class="shade"></div>
-            <div>Energy: <span class="energy"></span></div>
-            <div>Food: <span class="food"></span></div>
-            <div>Water: <span class="water"></span></div>
-            <div>Happiness: <span class="happiness"></span></div>
-            <div>Chill: <span class="chill"></span></div>
-            <div>Heat: <span class="heat"></span></div>
-            <hr>
-            <div>Energy: <span class="energy-alter"></span></div>
-            <div>Food: <span class="food-alter"></span></div>
-            <div>Water: <span class="water-alter"></span></div>
-            <div>Happiness: <span class="happiness-alter"></span></div>
-            <div>Chill: <span class="chill-alter"></span></div>
-            <div>Heat: <span class="heat-alter"></span></div>
         </div>
         
         <div id="nature">
             <div>
-                <p>Sun</p>
+                <p class="sun">Sun</p>
                 <input type="range" id="solstice" min="-100" max="100" v-model="solstice">
             </div>
             <div>
-                <p>Clouds</p>
+                <p class="clouds">Clouds</p>
                 <input type="range" id="weather" min="-100" max="100" v-model="weather">
             </div>
             <div>
-                <p>Winter</p>
+                <p class="winter">Winter</p>
                 <input type="range" id="season" min="-100" max="100" v-model="season">
             </div>
+            <button id="sound">Sound off</button>
         </div>
         
         <div id="east">
             <canvas id="east-canvas" width="512" height="512"></canvas>
             <div id="east-shade" class="shade"></div>
-            <div>Energy: <span class="energy"></span></div>
-            <div>Food: <span class="food"></span></div>
-            <div>Water: <span class="water"></span></div>
-            <div>Happiness: <span class="happiness"></span></div>
-            <div>Chill: <span class="chill"></span></div>
-            <div>Heat: <span class="heat"></span></div>
-            <hr>
-            <div>Energy: <span class="energy-alter"></span></div>
-            <div>Food: <span class="food-alter"></span></div>
-            <div>Water: <span class="water-alter"></span></div>
-            <div>Happiness: <span class="happiness-alter"></span></div>
-            <div>Chill: <span class="chill-alter"></span></div>
-            <div>Heat: <span class="heat-alter"></span></div>
         </div>
     </div>
+    <div id="game-over" style="display: none">
+        <h1>Game over</h1>
+        <p id="why"></p>
+        <p id="tip"></p>
+        <p>You kept them alive for <span id="score"></span> seconds.</p>
+        <button id="restart">Try again</button>
+    </div>
 
-    <!-- <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/vue/0.10.6/vue.min.js"></script> -->
-    <script src="js/jquery-1.11.0.min.js"></script>
-    <script src="js/vue.min.js"></script>
+    <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/vue/0.10.6/vue.min.js"></script>
     <script src="js/seasons.js"></script>
 </body>
 </html>
