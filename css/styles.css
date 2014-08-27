@@ -9,6 +9,11 @@ button {
     border: 1px solid grey;
 }
 
+a, a:visited {
+    color: #FEC634;
+    text-decoration: none;
+}
+
 #intro, #game-over {
     text-align: center;
 }
@@ -71,10 +76,27 @@ canvas {
     color: white;
 }
 
-#why {
+#why, .die {
     color: #ff3300;
 }
 
 #sound {
     margin-top: 20px;
+}
+
+.info {
+    font-size: 12px;
+}
+
+.load-start-wrapper {
+    height: 50px;
+}
+
+h1 {
+    color: white;
+    text-shadow: 0px 0px 10px #5eab00;
+}
+
+.creatures {
+    color: #E0B300;
 }
